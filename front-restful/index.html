@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <title>Document</title>
+    <script src="./js/jquery/jquery.min.js"></script>
+
+
+    <script>
+        //初始化对象
+        //初始化对象
+
+        let container;
+        //定义数据来源
+
+        let data_url = "http://wsmooc.jxufe.edu.cn/homework/data/resource.json"
+
+        $(document).ready(function () {
+                //根据id获取DOM节点并赋值container
+                container = $("#container");
+                //设置container文本内容
+                container.text("正在请求服务器数据...");
+                //获取远程数据
+                request("POST", data_url, {}, createView, showError, true);
+                console.log("请求后执行到这里");
+
+            }
+
+        );
+        //定义请求函数
+        let request = function (method, url, data, successCallBack, errorCallBack, async) {
+
+            $.ajax({
+
+                url: url,
+
+                async: async,
+
+                data: data,
+
+                method: method
+
+            }).done(successCallBack).fail(errorCallBack);
+
+        }
+
+        //定义成功回调函数
+
+        let createView = function (response) {
+            container.empty();
+            console.log(response);
+            console.log(response.backgroundImage)
+            let backgroundImageUrl = response.backgroundImage;
+            let buttons = response.buttons;
+
+            //backgroundImage展现
+            let bI = $(".bI").css({
+                "background-image": "url('" + backgroundImageUrl + "')",
+                "background-size": "cover",
+                "height": "100%",
+                "position": "absolute",
+                "width": "100%",
+                "background-position": "center center",
+                bottom: "-796px",
+                height: "236px",
+                width: buttons[0].image.width,
+                "background-color":"currentcolor",
+                "z-index":2
+            })
+            let main = $(".main");
+            main.css({
+                "width": buttons[0].image.width + "px"
+            });
+
+            let bts = $(".bts");
+
+            bts.css({
+                "display": "flex",
+                "flex-direction": "row",
+                "justify-content": "space-around",
+                "position": "absolute",
+                "width": "100%",
+                bottom: "-826px",
+                width: buttons[0].image.width
+
+            });
+            let content;
+            for (var i = 0; i < 5; i++) {
+                // let icon = $("<div>")
+                // icon.addClass("icon");
+                let bt = $("<button>")
+                bt.attr("index", i);
+                bt.addClass("bt");
+                let lImage = $("<img>");
+                lImage.addClass("lImage");
+                lImage.attr("src", buttons[i].icon.btTextLeftImageUrl)
+                lImage.attr("alt", "lImage");
+                lImage.css({
+                    "width": "35%"
+                })
+                let div1 = $("<div>");
+                div1.addClass("div1");
+                div1.text("" + buttons[i].icon.btTextCaption);
+                div1.css({
+                    "color": "rgba(255, 255, 255, 0.604)",
+                    "align-content": "center",
+                    "font-size": "large",
+                    height: "100%"
+                })
+                let rImage = $("<img>");
+                rImage.addClass("rImage");
+                rImage.attr("src", buttons[i].icon.btTextRightImageUrl)
+                rImage.attr("alt", "rImage");
+                rImage.css({
+                    "width": "35%"
+                })
+                bt.css({
+                    "display": "flex",
+                    "padding": "0",
+                    "border": "none",
+                    cursor: "pointer",
+                    background: "none"
+                })
+                bt.append(lImage, div1, rImage)
+                // icon.append(bt)
+                // icon.css({"width":"40px","height":"40px","background-color":"red"});
+                // bts.append(icon);
+                bts.append(bt)
+            }
+            let bt = $(".bt");
+            let showButtonContent = function (index) {
+                console.log(index)
+                // alert("hello")
+                let image = $(".image");
+                console.log(buttons[index])
+                image.css({
+                    "z-index": buttons[index].image.zIndex + 1,
+                    "background-image": "url('" + buttons[index].image.url + "')",
+                    width: "" + buttons[index].image.width,
+                    height: "" + buttons[index].image.height,
+                    position: "absolute",
+                    top: buttons[index].image.y,
+                    left: buttons[index].image.x,
+                    "background-size": "contain"
+                })
+                let bImage = $(".bImage");
+                bImage.css({
+                    "background-image": "url('" + buttons[index].backgroundImage.url + "')",
+                    position: "absolute",
+                    top: buttons[index].backgroundImage.y,
+                    left: buttons[index].backgroundImage.x,
+                    width: buttons[index].backgroundImage.width,
+                    height: buttons[index].backgroundImage.height,
+                    "background-size": "contain",
+
+                })
+
+
+
+                let title = $(".title");
+                let content = $(".content");
+                let detail = $(".detail");
+                let video = $("<video>");
+                content.css({
+                    "position": "absolute",
+                    "width": buttons[0].image.width,
+                    top: "-5px",
+                    left: "20px"
+                })
+                title.text(buttons[index].title);
+                if (buttons[index].type == "text") {
+                    $(".v1").remove()
+                    console.log("detail")
+                    detail.html(buttons[index].detail);
+                    detail.css({
+                        "line-height": "1.7",
+                        "font-size": "20px",
+                        "color": "white",
+                        "text-indent": "2em",
+                        "text-align": buttons[index].align,
+                        position: "relative",
+                        top: "34px",
+                        left: "-1px"
+                    })
+
+                }
+                if (buttons[index].type == "video") {
+                    console.log("video")
+                    // content.remove(".detail")
+                    detail.empty();
+                    // detail.empty();
+                   
+                    let source = $("<source>");
+
+                    source.attr("src", buttons[index].detail);
+                    source.attr("type", "video/mp4");
+
+                    video.append(source);
+                    video.addClass("v1")
+                    video.attr("poster", buttons[index].poster);
+                    video.attr("controls", "controls")
+                    video.css({
+                        "text-align": buttons[index].align,
+                        position: "absolute",
+                        top: "175px",
+                        left: "139px",
+                        width: "700px",
+                        "height": "400px",
+                        "object-fit": "cover",
+                        "box-shadow": "0 0 14px 11px #999",
+                        "z-index":3    
+
+                    })
+                    content.append(video)
+                }
+
+
+
+
+            }
+            showButtonContent(response.default-1)
+            bt.bind("click", function () {
+
+                showButtonContent($(this).attr("index"))
+            });
+
+
+        }
+
+
+        //定义失败回调函数
+
+        let showError = function (jqXHR, textStatus) {
+
+            console.log("responseText:", jqXHR.responseText);
+
+            console.log("status:", jqXHR.status);
+
+            console.log("textStatus:", textStatus);
+
+            console.log("readyState:", jqXHR.readyState);
+
+            container.text("数据请求故障，按F12键在Console中查看具体信息。");
+
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <div class="main">
+        <div class="bI"></div>
+        <div class="bts"></div>
+        <div class="image"></div>
+        <div class="bImage"></div>
+        <div class="content">
+            <div class="title"></div>
+            <div class="detail"></div>
+        </div>
+
+</body>
+<style type="text/css">
+    body,
+    html {
+        background-color: black;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+    }
+
+    .main {
+        position: absolute;
+        margin: 0 10% 0 15%;
+
+    }
+
+    @font-face {
+        font-family: "abc";
+        src: url("http://wsmooc.jxufe.edu.cn/homework/fonts/叶根友刀锋黑.ttf");
+    }
+
+    .title {
+        font-family: "abc";
+        font-size: 100px;
+        color: yellow;
+        position: relative;
+        z-index: 100;
+        top: 47px;
+
+    }
+
+    .detail strong {
+        color: yellow;
+    }
+</style>
+
+</html>
